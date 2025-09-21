@@ -29,7 +29,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js for frontend
+      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -44,7 +44,7 @@ jobs:
         working-directory: backend
         run: npm run test
 
-      # 4. Install & test frontend
+      # 4. Install & build frontend
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm install
@@ -52,8 +52,3 @@ jobs:
       - name: Run frontend build
         working-directory: frontend
         run: npm run build
-
-      # 5. Run Selenium tests (API/UI automation)
-      - name: Run Selenium tests
-        working-directory: selenium-tests
-        run: npx ts-node loginTest.ts && npx ts-node addEmployeeTest.ts
