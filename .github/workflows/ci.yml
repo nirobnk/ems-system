@@ -1,0 +1,59 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ems_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      # 1. Checkout Code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js for frontend
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3. Install & test backend
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: Run backend unit tests
+        working-directory: backend
+        run: npm run test
+
+      # 4. Install & test frontend
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Run frontend build
+        working-directory: frontend
+        run: npm run build
+
+      # 5. Run Selenium tests (API/UI automation)
+      - name: Run Selenium tests
+        working-directory: selenium-tests
+        run: npx ts-node loginTest.ts && npx ts-node addEmployeeTest.ts
